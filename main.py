@@ -1,8 +1,14 @@
 import sys
+import random
 from PIL import Image
 from fastecdsa import keys, curve
 from fastecdsa.curve import P256
 from fastecdsa.point import Point
+
+""" DEFINES """
+RANDOM_LOWER_K = 100
+RANDOM_UPER_K_= 100
+"""........."""
 
 """ funcao que trata da imagem
 Recebe:
@@ -42,7 +48,17 @@ Recebe:
 Retorna:
  1. Imagem encriptada
 """
-def Elgamal(imagem): return  []
+def Elgamal(imagem,Pubkey,Privkey): 
+    # gerar um numero aleatorio 1 ou 2
+    random = random.randint(1,2)
+    # somar a todos os pontos esse valor
+    imagem = list(map(lambda x: (x[0]+random,x[1]+random,x[2]+random), imagem ))
+    # numero de alteracoes
+    alteracaoes = len(imagem)
+    #
+    # gerar aleatoriamente o k
+    k = random.randint(RANDOM_LOWER_K_,RANDOM_UPER_K_)
+
 
 """ funcao que cifra a imagem
 Recebe:
@@ -53,7 +69,7 @@ Retorna:
  1. Imagem encriptada
 """
 def cifra(imagem , protocologo):
-    if (protocologo == 'Elgamal'): return Elgamal(imagem)
+    if (protocologo == 'Elgamal'): return Elgamal(imagem,"","")
     else: return (-1)
 
 
