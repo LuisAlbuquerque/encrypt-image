@@ -6,8 +6,8 @@ from fastecdsa.curve import P256
 from fastecdsa.point import Point
 
 """ DEFINES """
-RANDOM_LOWER_K = 100
-RANDOM_UPER_K_= 100
+RANDOM_LOWER_K_ = 100
+RANDOM_UPER_K_  = 100
 """........."""
 
 """ funcao que trata da imagem
@@ -29,9 +29,9 @@ Recebe:
 Retorna:
  1. nova imagem com os pixeis da lista
 """
-def create_image(list, mode, size):
+def create_image(list_, mode, size):
     res = Image.new(mode,size)
-    res.putdata(list)
+    res.putdata(list_)
     return res
 
 """ funcao que mostra a imagem
@@ -48,11 +48,11 @@ Recebe:
 Retorna:
  1. Imagem encriptada
 """
-def Elgamal(imagem,Pubkey,Privkey): 
+def Elgamal(imagem,Pubkey,Privkey):
     # gerar um numero aleatorio 1 ou 2
-    random = random.randint(1,2)
+    rand = random.randint(1,2)
     # somar a todos os pontos esse valor
-    imagem = list(map(lambda x: (x[0]+random,x[1]+random,x[2]+random), imagem ))
+    imagem = list(map(lambda x: (x[0]+rand,x[1]+rand,x[2]+rand), imagem ))
     # numero de alteracoes
     alteracaoes = len(imagem)
     #
@@ -83,7 +83,7 @@ def cifra(imagem , protocologo):
 """
 def main():
     """ temporariamente , so para ser mais facil testar"""
-    imagem1 = 'serveimage.jpeg'
+    imagem1 = 'jc.jpg'
     protocologo = 'Elgamal'
     """..............."""
 
