@@ -117,6 +117,18 @@ Recebe:
 """
 def show_image(imagem): return (Image.open(imagem)).show()
 
+def rsa_c_aux(pixel,n,e):
+    return (pixel[R]**e % n,pixel[G]**e % n,pixel[B]**e % n)
+
+def rsa_d_aux(pixel,n,PrivKey):
+    return (pixel[R]**PrivKey % n,pixel[G]**PrivKey % n,pixel[B]**PrivKey % n)
+
+def RSA_c(image,Pubkey):
+    return list(map(lambda x: rsa_c_aux(x,Pubkey[0],Pubkey[1]), image))
+
+def RSA_d(image,Pubkey,PrivKey):
+    return list(map(lambda x: rsa_d_aux(x,Pubkey[0],PrivKey), image))
+
 """ funcao que cifra a imagem
 Recebe:
  1. Uma imagem
