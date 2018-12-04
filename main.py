@@ -48,6 +48,9 @@ def string_int(string): return func_convert(string,curry(ord))
 
 def func_convert(string,f): return reduce(lambda x,y: f (x) + f (y), string )
 
+def pixel_to_string_aux(pixel_element):
+    return '0'*( 3 - len(str(pixel_element)) ) + str(pixel_element)
+
 """ funcao auxiliar de image_to_string_aux
    que transforma um pixel numa string 
 Recebe:
@@ -58,7 +61,9 @@ Recebe:
   1. string com o pixeis em string, com as componetes separadas por (espaco =separador)
 """
 def pixel_to_string(pixel, separator =","):
-    return (str(pixel[R]) + separator + str(pixel[G])+ separator + str(pixel[B]))
+    if(separator != ''): return (str(pixel[R]) + separator + str(pixel[G])+ separator + str(pixel[B]))
+    return (pixel_to_string_aux(pixel[R]) + separator + pixel_to_string_aux(pixel[G])+ separator + pixel_to_string_aux(pixel[B]))
+
 
 """ funcao auxiliar de image_to_string
     que transforma dois pixeis numa string
@@ -69,9 +74,8 @@ Recebe:
 
  Retorna:
   1. string com os pixeis separados por (espaco =separador)
-"""
-def image_to_string_aux(pixel1,pixel2, separator = " "):
-    return (pixel_to_string(pixel1) + separator + pixel_to_string(pixel2))
+""" 
+def image_to_string_aux(pixel1,pixel2, separator = " "): return (pixel_to_string(pixel1) + separator + pixel_to_string(pixel2))
 
 """ funcao que transforma uma imagem (conjunto de pixeis)
     em uma string (conjunto de carateres)
@@ -83,7 +87,6 @@ Recebe:
 """
 
 def image_to_string(image):
-    # image = [ (r,g,b) , ...]
      return reduce(lambda x,y: image_to_string_aux(x,y),image)
 
 """ funcao que trata da imagem
@@ -198,8 +201,8 @@ def main():
     # funcao que recebe a imagem e trata de passar para lista
     #img = convert_image(sys[1])
     #show_image(imagem1)
-    #img = convert_image(imagem1)
-    #print(img)
+    img = convert_image(imagem1)
+    print(img)
 
     # funcao que cifra a mensagem usando o protocolog enunciado
     #eimg = cifra(img, sys[3])
