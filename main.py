@@ -1,9 +1,9 @@
 import sys
 import random
 from PIL import Image
-from fastecdsa import keys, curve
-from fastecdsa.curve import P256
-from fastecdsa.point import Point
+#from fastecdsa import keys, curve
+#from fastecdsa.curve import P256
+#from fastecdsa.point import Point
 from functools import reduce
 from toolz import curry
 
@@ -14,6 +14,21 @@ R = 0
 G = 1
 B = 2
 """........."""
+
+#def Koblitz(mens, (p, a, b), k =30):
+#    Zp=IntegerModRing(p)
+#    E=EllipticCurve(Zp, [a,b])
+#    x = mens*k
+#    existe_y=legendre_symbol(x^3+a*x+b, p)==1
+#    contador=0
+#    while not existe_y and contador <k:
+#        x+=1
+#        contador+=1
+#        existe_y=legendre_symbol(x^3+a*x+b, p)==1
+#    if existe_y:
+#        x=Zp(x)
+#        return E(x, sqrt(x^3+a*x+b))
+#    return[]
 
 """ funcao que percorre uma lista
     e que retorna uma outra cujos 
@@ -47,6 +62,9 @@ def stringInt_to_stringCHAR(string): return func_convert(string,curry(chr))
 def string_int(string): return func_convert(string,curry(ord))
 
 def func_convert(string,f): return reduce(lambda x,y: f (x) + f (y), string )
+
+""" numer ----> 1number """
+def string_to_int(string): return int('1' + string)
 
 def pixel_to_string_aux(pixel_element):
     return '0'*( 3 - len(str(pixel_element)) ) + str(pixel_element)
@@ -200,9 +218,9 @@ def main():
 
     # funcao que recebe a imagem e trata de passar para lista
     #img = convert_image(sys[1])
-    #show_image(imagem1)
+    show_image(imagem1)
     img = convert_image(imagem1)
-    print(img)
+    print(len(img))
 
     # funcao que cifra a mensagem usando o protocolog enunciado
     #eimg = cifra(img, sys[3])
