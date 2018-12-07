@@ -2,7 +2,7 @@ from sympy.abc import x, y
 from sympy.core.compatibility import is_sequence
 from sympy.core.numbers import oo
 from sympy.core.relational import Eq
-from sympy.polys.domains import FiniteField, QQ, RationalField
+from sympy.polys.domains import FiniteField, QQ, RationalField, ZZ
 from sympy.solvers.solvers import solve
 
 from sympy.ntheory.factor_ import divisors

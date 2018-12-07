@@ -1,11 +1,38 @@
+""" 
+----------------------------------------Image Encryption---------------------------
+
+using : 
+#Eliptic curve cryptography
+    -> Elgamal
+#others
+    -> RSA
+
+-------Note---------
+#python3.6 ou >
+    python3.6 main.py
+
+# type checking
+mypy main.py
+--------------------
+
+-----------------------------------------------------------------------------------
+"""
+
 import sys
 import random
+import sympy
 from PIL import Image
 #from fastecdsa import keys, curve
 #from fastecdsa.curve import P256
 #from fastecdsa.point import Point
 from functools import reduce
 from toolz import curry
+from typing import *
+
+""" outros ficheiros """
+import elipticCurve
+
+"""........."""
 
 """ DEFINES """
 RANDOM_LOWER_K_ = 100
@@ -15,58 +42,118 @@ G = 1
 B = 2
 """........."""
 
-#def Koblitz(mens, (p, a, b), k =30):
+""" funcao que transforma um inteiro 
+    num ponto na curva eliptica
+Recebe: 
+ 1. mensagem (numero)
+ 2. dados da curva eliptica
+    curva[0] = p
+    curva[1] = a
+    curva[2] = b
+ 3. k
+
+Retorna:
+ 1. Ponto na curva eliptica 
+"""
+#def Koblitz(mens: int, Ecurve: Tuple[int,int,int], k: int =30)-> any:
+#    (p, a, b) = Ecurve
 #    Zp=IntegerModRing(p)
+#    E = EllipticCurve(0, 0, 0, a, b, domain = ZZ)
 #    E=EllipticCurve(Zp, [a,b])
 #    x = mens*k
-#    existe_y=legendre_symbol(x^3+a*x+b, p)==1
+#    existe_y = sympy.legendre_symbol(x^3+a*x+b, p)==1
 #    contador=0
 #    while not existe_y and contador <k:
 #        x+=1
 #        contador+=1
-#        existe_y=legendre_symbol(x^3+a*x+b, p)==1
+#        existe_y = sympylegendre_symbol(x^3+a*x+b, p)==1
 #    if existe_y:
 #        x=Zp(x)
 #        return E(x, sqrt(x^3+a*x+b))
 #    return[]
 
-""" funcao que percorre uma lista
-    e que retorna uma outra cujos 
-    elementos sao o resultado de
-    aplicar uma funcao aos elementos
-    da lista recebida.
+
+""" funcao que aplica uma funcao
+    a cada elemento da lista
 Recebe:
- 1. funcao que cria elementos a partir de outros
- 2. lista de entrada
- 3. lista de retoro
+ 1. funcao
+ 2. lista de base
+ 3. lista de retorno (neste caso por onde comeca) 
 
- Retorna:
-  1. nova lista aplicando a funcao
+Retorna:
+ 1. nova lista aplicando a funcao a cada elemento
 """
-
 def forEachVec(f,lista, res = []):
     for i in lista:
         res.append(f(i))
     return res
 
-def stringCHAR_to_image_aux(string_pixel):
-    pixel = string_pixel.split(",")
+""" funcao que transforma uma string
+    num pixel
+Recebe:
+ 1. string que contem todas as componentes do pixel
+ 2. separador de componentes do pixel
+
+Retorna:
+ 1. Pixel
+"""
+def stringCHAR_to_image_aux(string_pixel: str, separator = ",")-> Tuple[int,int,int]:
+    pixel = string_pixel.split(separator)
     return (pixel[R],pixel[G],pixel[B])
 
-def stringCHAR_to_image(string):
-    forEachVec( lambda x: stringCHAR_to_image_aux(x), string.split(" "))
+""" funcao que transforma uma string
+    em uma imagem
+Recebe:
+ 1. string que contem toda a informacao da imagem
+ 2. separador de pixel
+
+Retorna:
+ 1. imagem
+"""
+def stringCHAR_to_image(string: str, separator: str = " ")-> List[Tuple[int,int,int]]:
+    forEachVec( lambda x: stringCHAR_to_image_aux(x), string.split(separator))
 
 
-def stringInt_to_stringCHAR(string): return func_convert(string,curry(chr))
+""" funcao que transforma uma string de
+    inteiros numa string de char
+    fazendo a associacao ASCI
+Recebe:
+ 1. string (int)
 
-def string_int(string): return func_convert(string,curry(ord))
+Retorna:
+ 1. string (char)
+"""
+def stringInt_to_stringCHAR(string: str)-> str: return func_convert(string,curry(chr))
 
-def func_convert(string,f): return reduce(lambda x,y: f (x) + f (y), string )
+""" funcao que transforma uma string de
+    char numa string de inteiros
+    fazendo a associacao ASCI
+Recebe:
+ 1. string (char)
+
+Retorna:
+ 1. string (int)
+"""
+def stringChar_to_StringInt(string: str)-> int: return func_convert(string,curry(ord))
+
+""" funcao de conversao de strings
+    usando uma funcao
+Recebe:
+ 1. String para converter
+ 2. funcao
+"""
+def func_convert(string: str,f): return reduce(lambda x,y: f (x) + f (y), string )
 
 """ numer ----> 1number """
-def string_to_int(string): return int('1' + string)
+def string_to_int(string: str)-> int: return int('1' + string)
 
-def pixel_to_string_aux(pixel_element):
+""" 1number ----> number """
+def int_to_string(integer: int)-> str: return str(int)[1:]
+
+"""
+MACRO para ser mais legivel
+"""
+def pixel_to_string_aux(pixel_element: List[Tuple[int,int,int]])-> str:
     return '0'*( 3 - len(str(pixel_element)) ) + str(pixel_element)
 
 """ funcao auxiliar de image_to_string_aux
@@ -78,7 +165,7 @@ Recebe:
  Retorna:
   1. string com o pixeis em string, com as componetes separadas por (espaco =separador)
 """
-def pixel_to_string(pixel, separator =","):
+def pixel_to_string(pixel: Tuple[int,int,int], separator: str =",")-> str:
     if(separator != ''): return (str(pixel[R]) + separator + str(pixel[G])+ separator + str(pixel[B]))
     return (pixel_to_string_aux(pixel[R]) + separator + pixel_to_string_aux(pixel[G])+ separator + pixel_to_string_aux(pixel[B]))
 
@@ -93,7 +180,8 @@ Recebe:
  Retorna:
   1. string com os pixeis separados por (espaco =separador)
 """ 
-def image_to_string_aux(pixel1,pixel2, separator = " "): return (pixel_to_string(pixel1) + separator + pixel_to_string(pixel2))
+def image_to_string_aux(pixel1: Tuple[int,int,int],pixel2: Tuple[int,int,int], separator: str = " ")-> str:
+    return (pixel_to_string(pixel1) + separator + pixel_to_string(pixel2))
 
 """ funcao que transforma uma imagem (conjunto de pixeis)
     em uma string (conjunto de carateres)
@@ -104,7 +192,7 @@ Recebe:
   1. string com os pixeis separados por (espaco)
 """
 
-def image_to_string(image):
+def image_to_string(image: List[Tuple[int,int,int]])-> str:
      return reduce(lambda x,y: image_to_string_aux(x,y),image)
 
 """ funcao que trata da imagem
@@ -114,7 +202,7 @@ Recebe:
 Retorna:
  1. lista de pixeis
 """
-def convert_image(imagem): return list((Image.open(imagem)).getdata())
+def convert_image(imagem)-> List[Tuple[int,int,int]]: return list((Image.open(imagem)).getdata())
 
 
 """ funcao que cria uma imagem
@@ -126,7 +214,7 @@ Recebe:
 Retorna:
  1. nova imagem com os pixeis da lista
 """
-def create_image(list_, mode, size):
+def create_image(list_: List[Tuple[int,int,int]], mode, size):
     res = Image.new(mode,size)
     res.putdata(list_)
     return res
@@ -138,16 +226,59 @@ Recebe:
 """
 def show_image(imagem): return (Image.open(imagem)).show()
 
-def rsa_c_aux(pixel,n,e):
+""" funcao de encriptacao
+    usa como base o sistema criptografico
+    de chave publica RSA
+Recebe:
+ 1. pixel
+ 2. n
+ 3. e
+
+Retorna:
+ 1. pixel encriptado
+"""
+def rsa_c_aux(pixel: Tuple[int,int,int],n: int,e: int)-> Tuple[int,int,int]:
     return (pixel[R]**e % n,pixel[G]**e % n,pixel[B]**e % n)
 
-def rsa_d_aux(pixel,n,PrivKey):
+""" funcao de decifracao
+    usa como base o sistema criptografico
+    de chave publica RSA
+Recebe:
+ 1. pixel encriptado
+ 2. n
+ 3. chave privada
+
+Retorna:
+ 1. pixel 
+"""
+def rsa_d_aux(pixel: Tuple[int,int,int],n: int,PrivKey: int)-> Tuple[int,int,int]:
     return (pixel[R]**PrivKey % n,pixel[G]**PrivKey % n,pixel[B]**PrivKey % n)
 
-def RSA_c(image,Pubkey):
+""" funcao de encriptacao
+    usa como base o sistema criptografico
+    de chave publica RSA
+Recebe:
+ 1. imagem
+ 2. (n,e)
+
+Retorna:
+ 1. imagem encriptada
+"""
+def RSA_c(image: List[Tuple[int,int,int]],Pubkey: Tuple[int,int])-> List[Tuple[int,int,int]]:
     return list(map(lambda x: rsa_c_aux(x,Pubkey[0],Pubkey[1]), image))
 
-def RSA_d(image,Pubkey,PrivKey):
+""" funcao de decifracao
+    usa como base o sistema criptografico
+    de chave publica RSA
+Recebe:
+ 1. imagem encriptada
+ 2. (n,e)
+ 3. chave privada
+
+Retorna:
+ 1. imagem
+"""
+def RSA_d(image: List[Tuple[int,int,int]],Pubkey,PrivKey: int)-> List[Tuple[int,int,int]]:
     return list(map(lambda x: rsa_d_aux(x,Pubkey[0],PrivKey), image))
 
 """ funcao que cifra a imagem
@@ -157,7 +288,7 @@ Recebe:
 Retorna:
  1. Imagem encriptada
 """
-def Elgamal(imagem,Pubkey):
+def Elgamal_c(imagem: List[Tuple[int,int,int]],Pubkey: Tuple[any,int,int])-> List[Tuple[int,int,int]]:
     """
     # gerar um numero aleatorio 1 ou 2
     rand = random.randint(1,2)
@@ -183,7 +314,7 @@ Recebe:
 Retorna:
  1. Imagem decifrada
 """ 
-def Elgamal_d(imagem,Pubkey,PrivKey):
+def Elgamal_d(imagem: Tuple[any,any],Pubkey: Tuple[any,int,int],PrivKey: int)-> List[Tuple[int,int,int]]:
     delta , gama = imagem
     E , P , Q = Pubkey
     return (list(map(lambda x: ( (-1)*PrivKey*x[0]+gama, (-1)*PrivKey*x[1]+gama, (-1)*PrivKey*x[2]+gama), delta )))
@@ -197,7 +328,7 @@ Recebe:
 Retorna:
  1. Imagem encriptada
 """
-def cifra(imagem , protocologo):
+def cifra(imagem: List[Tuple[int,int,int]] , protocologo: str):
     if (protocologo == 'Elgamal'): return Elgamal(imagem,"")
     else: return (-1)
 
