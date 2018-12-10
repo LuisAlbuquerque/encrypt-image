@@ -1,6 +1,5 @@
 """ 
 ----------------------------------------Image Encryption---------------------------
-
 using : 
 #Eliptic curve cryptography
     -> Elgamal
@@ -37,25 +36,36 @@ import elipticCurve
 """ DEFINES """
 RANDOM_LOWER_K_ = 100
 RANDOM_UPER_K_  = 1000
+RANDOM_LOWER = 100
+RANDOM_UPER  = 1000
 R = 0
 G = 1
 B = 2
+DELTA = 0
+GAMA = 1
+"""........."""
+
+""" Globais """
+Curva_eliptica = (sympy.nextprime(random.randint(RANDOM_LOWER,RANDOM_UPER)),
+                        random.randint(RANDOM_LOWER,RANDOM_UPER ),
+                        random.randint(RANDOM_LOWER,RANDOM_UPER)
+                        )
 """........."""
 
 """ funcao que transforma um inteiro 
     num ponto na curva eliptica
 Recebe: 
- 1. mensagem (numero)
+ 1. mensagem (numero : int)
  2. dados da curva eliptica
-    curva[0] = p
-    curva[1] = a
-    curva[2] = b
+    curva[0] = p ( Z[p] )
+    curva[1] = a ( y^2 = x^3 + [a]x + b )
+    curva[2] = b ( y^2 = x^3 + ax + [b] )
  3. k
 
 Retorna:
  1. Ponto na curva eliptica 
 """
-#def Koblitz(mens: int, Ecurve: Tuple[int,int,int], k: int =30)-> any:
+#def Koblitz(mens: int, Ecurve: Tuple[int,int,int] = Curva_eliptica, k: int =30)-> any:
 #    (p, a, b) = Ecurve
 #    Zp=IntegerModRing(p)
 #    E = EllipticCurve(0, 0, 0, a, b, domain = ZZ)
@@ -69,9 +79,14 @@ Retorna:
 #        existe_y = sympylegendre_symbol(x^3+a*x+b, p)==1
 #    if existe_y:
 #        x=Zp(x)
-#        return E(x, sqrt(x^3+a*x+b))
+#        return (x, sqrt(x^3+a*x+b)
 #    return[]
 
+def Koblitz(x: int, Ecurve: Tuple[int,int,int] = Curva_eliptica, k: int =30, f: int = 1)-> any:
+    if(f): x = x*30
+    if(legendre_symbol(x**3 + Ecurve[1]*x + Ecurve[2],Ecurve[0]) == 1):
+         return EllipticCurve(0, 0, 0, a, b, domain = ZZ)(x,sqrt(x^3+a*x+b),1)
+    return koblitz(x+1,Ecurve,0)
 
 """ funcao que aplica uma funcao
     a cada elemento da lista
@@ -298,12 +313,18 @@ def Elgamal_c(imagem: List[Tuple[int,int,int]],Pubkey: Tuple[any,int,int])-> Lis
     alteracaoes = len(imagem)
     """
 
-    #tentar implementar o elgamal normal
     E , P , Q = Pubkey
-    imagem = list(map(lambda x: (x[0]+rand,x[1]+rand,x[2]+rand), imagem ))
-    # gerar aleatoriamente o k
-    k = random.randint(1,2*E[0])
-    return (k*P, list(map(lambda x: (( x[0] + k * Q )%255, ( x[1] + k * Q )%255, ( x[2] + k * Q )%255, imagem ))))
+    ponto = Koblitz( string_to_int( stringChar_to_StringInt(image_to_string(imagem) ) ))
+
+    K = random.randint(RANDOM_LOWER_K_,RANDOM_UPER_K_)
+    return (K*P , ponto + K*Q)
+
+   # #tentar implementar o elgamal normal
+   # E , P , Q = Pubkey
+   # k = random.randint(1,2*E[0])
+   # imagem = list(map(lambda x: (x[0]+rand,x[1]+rand,x[2]+rand), imaem ))
+   # # gerar aleatoriamente o k
+   # return (k*P, list(map(lambda x: (( x[0] + k * Q )%255, ( x[1] + k * Q )%255, ( x[2] + k * Q )%255, imagem ))))
 
 """ funcao que decifra a imagem
 Recebe:
@@ -315,9 +336,10 @@ Retorna:
  1. Imagem decifrada
 """ 
 def Elgamal_d(imagem: Tuple[any,any],Pubkey: Tuple[any,int,int],PrivKey: int)-> List[Tuple[int,int,int]]:
-    delta , gama = imagem
-    E , P , Q = Pubkey
-    return (list(map(lambda x: ( (-1)*PrivKey*x[0]+gama, (-1)*PrivKey*x[1]+gama, (-1)*PrivKey*x[2]+gama), delta )))
+    return ((-1)*PrivKey*imagem[DELTA] + imagem[GAMA] )
+   # delta , gama = imagem
+   # E , P , Q = Pubkey
+   # return (list(map(lambda x: ( (-1)*PrivKey*x[0]+gama, (-1)*PrivKey*x[1]+gama, (-1)*PrivKey*x[2]+gama), delta )))
 
 
 """ funcao que cifra a imagem
@@ -329,9 +351,18 @@ Retorna:
  1. Imagem encriptada
 """
 def cifra(imagem: List[Tuple[int,int,int]] , protocologo: str):
-    if (protocologo == 'Elgamal'): return Elgamal(imagem,"")
+    if (protocologo == 'Elgamal'): 
+        (p,a,b) = Curva_eliptica
+        EllipticCurve(0, 0, 0, a, b, domain = ZZ)
+
+        #PubKey = ((p,a,b), P, Q)
+        return Elgamal_c(imagem,Pubkey)
     else: return (-1)
 
+def DEUS_EC():
+    #Curva_eliptica = (p,a,b)
+    (p,a,b) = Curva_eliptica
+    EllipticCurve(0, 0, 0, a, b, domain = ZZ)
 
 """ funcao principal que gere todo o processo
     call python main <img> <from>
@@ -351,10 +382,10 @@ def main():
     #img = convert_image(sys[1])
     show_image(imagem1)
     img = convert_image(imagem1)
-    print(len(img))
+    #print(len(img))
 
     # funcao que cifra a mensagem usando o protocolog enunciado
     #eimg = cifra(img, sys[3])
-    #eimg = cifra(img, protocologo)
+    eimg = cifra(img, protocologo)
 
 main()
